@@ -1,0 +1,3 @@
+- doesn't seem like external world can connect despite port being open
+- when i deleted a pod it regenerated keys, seems odd?
+-- the problem is that it doesnt know the LB IP!
