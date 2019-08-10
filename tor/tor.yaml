@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tor
+  template:
+    metadata:
+      labels:
+        app: tor
+    spec:
+      containers:
+      - name: nginx
+        image: jess/tor-relay
+        ports:
+        - containerPort: 9001
+        env:
+        - name: RELAY_NICKNAME
+          value: "kubernetor"
+        volumeMounts:
+        - name: tor
+          mountPath: /var/lib/tor/
+      volumes:
+      - name: tor
+        persistentVolumeClaim:
+          claimName: tor
+    
