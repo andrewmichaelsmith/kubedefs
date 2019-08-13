@@ -26,6 +26,8 @@ spec:
       containers:
       - name: tor
         image: jess/tor-relay
+        command: ['/bin/sh']
+        args: ['-c', 'echo Address $(cat /config/ip) >>  /etc/tor/torrc.middle && ./run.sh']
         ports:
         - containerPort: 9001
         env:
