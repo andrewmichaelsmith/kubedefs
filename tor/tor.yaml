@@ -12,6 +12,8 @@ spec:
       labels:
         app: tor
     spec:
+      securityContext:
+        fsGroup:  65533
       serviceAccountName: tor
       initContainers:
       - name: init-tor
@@ -19,10 +21,15 @@ spec:
         command: ['/bin/sh']
         args: ['-c', 'kubectl get service tor -o jsonpath=''{.status.loadBalancer.ingress[0].ip}'' > /config/ip']
         volumeMounts:
-        - name: tor
-          mountPath: /var/lib/tor/
         - name: config
           mountPath: /config
+      - name: init-var-lib
+        image: busybox:latest
+        command: ['/bin/sh']
+        args: ['-c', 'chown 100:65533 /var/lib/tor/.tor']
+        volumeMounts:
+        - name: tor
+          mountPath: /var/lib/tor/.tor/
       containers:
       - name: tor
         image: jess/tor-relay
@@ -35,7 +42,7 @@ spec:
           value: "kubernetor"
         volumeMounts:
         - name: tor
-          mountPath: /var/lib/tor/
+          mountPath: /var/lib/tor/.tor/
         - name: config
           mountPath: /config
       volumes:
