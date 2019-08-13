@@ -16,10 +16,15 @@ spec:
       initContainers:
       - name: init-tor
         image: bitnami/kubectl:latest
-        command: ['sh', '-c', 'until nslookup tor; do echo waiting for tor; sleep 2; done;']
-        command: ['kubectl', 'get', 'service', 'tor', '-o', 'jsonpath=''{.status.loadBalancer.ingress[0].ip}''']
+        command: ['/bin/sh']
+        args: ['-c', 'kubectl get service tor -o jsonpath=''{.status.loadBalancer.ingress[0].ip}'' > /config/ip']
+        volumeMounts:
+        - name: tor
+          mountPath: /var/lib/tor/
+        - name: config
+          mountPath: /config
       containers:
-      - name: nginx
+      - name: tor
         image: jess/tor-relay
         ports:
         - containerPort: 9001
@@ -29,8 +34,13 @@ spec:
         volumeMounts:
         - name: tor
           mountPath: /var/lib/tor/
+        - name: config
+          mountPath: /config
       volumes:
       - name: tor
         persistentVolumeClaim:
           claimName: tor
-    
+      - name: config
+        emptyDir: {}
+
+ 
