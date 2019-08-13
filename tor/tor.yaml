@@ -12,6 +12,12 @@ spec:
       labels:
         app: tor
     spec:
+      serviceAccountName: tor
+      initContainers:
+      - name: init-tor
+        image: bitnami/kubectl:latest
+        command: ['sh', '-c', 'until nslookup tor; do echo waiting for tor; sleep 2; done;']
+        command: ['kubectl', 'get', 'service', 'tor', '-o', 'jsonpath=''{.status.loadBalancer.ingress[0].ip}''']
       containers:
       - name: nginx
         image: jess/tor-relay
