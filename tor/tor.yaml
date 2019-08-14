@@ -1,3 +1,59 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tor
+  annotations:
+    pv.beta.kubernetes.io/gid: "65533"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: do-block-storage
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tor-role
+subjects:
+- kind: ServiceAccount
+  name: tor
+roleRef:
+  kind: Role
+  name: tor-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: tor-role
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["services"]
+  verbs: ["get"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tor
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tor
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9001
+    protocol: TCP
+    targetPort: 9001
+  selector:
+    app: tor
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -53,3 +109,4 @@ spec:
         emptyDir: {}
 
  
+---
