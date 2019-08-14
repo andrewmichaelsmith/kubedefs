@@ -72,6 +72,10 @@ spec:
         fsGroup:  65533
       serviceAccountName: tor
       initContainers:
+      - name: init-tor-service-wait
+        image: bitnami/kubectl:latest
+        command: ['/bin/sh']
+        args: ['-c', 'until kubectl get service tor -o jsonpath=''{.status.loadBalancer.ingress[0].ip}''; do echo wait; sleep 5; done;']
       - name: init-tor
         image: bitnami/kubectl:latest
         command: ['/bin/sh']
