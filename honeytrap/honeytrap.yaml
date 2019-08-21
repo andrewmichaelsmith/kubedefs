@@ -25,9 +25,20 @@ data:
     
     [channel.console]
     type="console"
+
+    [channel.es]
+    type="elasticsearch"
+    url="https://elk-es-http:9200/honeytrap"
+    insecure=true
+    username="honeytrap"
+    password="honeytrap"
     
     [[filter]]
     channel=["console"]
+
+    [[filter]]
+    channel=["es"]
+ 
     
     [[logging]]
     output = "stdout"
@@ -42,7 +53,7 @@ spec:
   ports:
   - port: 22
     protocol: TCP
-    targetPort: 9001
+    targetPort: 8022
   selector:
     app: honeytrap
 ---
