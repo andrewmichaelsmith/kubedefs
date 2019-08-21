@@ -1,0 +1,73 @@
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: honeytrap
+data:
+  config.toml: |
+    [listener]
+    type="socket"
+    
+    [service.ssh-simulator]
+    type="ssh-simulator"
+    credentials=["root:root", "root:password"]
+    
+    [[port]]
+    ports=["tcp/8022", "tcp/8023"]
+    services=["ssh-simulator"]
+    
+    [service.telnet]
+    type="telnet"
+    server-name="WS-3244"
+    
+    [[port]]
+    port="tcp/5900"
+    services=["telnet"]
+    
+    [channel.console]
+    type="console"
+    
+    [[filter]]
+    channel=["console"]
+    
+    [[logging]]
+    output = "stdout"
+    level = "debug"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: honeytrap
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 22
+    protocol: TCP
+    targetPort: 9001
+  selector:
+    app: honeytrap
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: honeytrap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: honeytrap
+  template:
+    metadata:
+      labels:
+        app: honeytrap
+    spec:
+      containers:
+      - name: honeytrap
+        image: honeytrap/honeytrap
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config/
+      volumes:
+        - name: config-volume
+          configMap:
+            name: honeytrap
+
