@@ -22,6 +22,41 @@ data:
     [[port]]
     port="tcp/5900"
     services=["telnet"]
+
+    [service.http01]
+    type="http"
+    server="Nginx"
+    
+    [[port]]
+    port="tcp/8080"
+    services=["http01"]
+
+    [service.vnc]
+    type="vnc"
+    image="/data/images/desktop.png"
+    server-name="WS-3244"
+    
+    [[port]]
+    port="tcp/5900"
+    services=["vnc"]
+
+    [service.redis]
+    type="redis"
+    version="4.0.2"
+    os="Linux 2.6.32-431.el6.x86_64 x86_64"
+    
+    [[port]]
+    port="tcp/6379"
+    services=["redis"]
+
+    [service.smtp]
+    type="smtp"
+    
+    [[port]]
+    port="tcp/8025"
+    services=["smtp"]
+
+
     
     [channel.console]
     type="console"
@@ -52,8 +87,29 @@ spec:
   type: LoadBalancer
   ports:
   - port: 22
+    name: "ssh"
     protocol: TCP
     targetPort: 8022
+  - port: 23
+    name: "telnet"
+    protocol: TCP
+    targetPort: 8023
+  - port: 25
+    name: "smtp"
+    protocol: TCP
+    targetPort: 8025
+  - port: 80
+    name: "http"
+    protocol: TCP
+    targetPort: 8080
+  - port: 5900
+    name: "vnc"
+    protocol: TCP
+    targetPort: 5900
+  - port: 6379
+    name: "redis"
+    protocol: TCP
+    targetPort: 6379
   selector:
     app: honeytrap
 ---
